@@ -1,0 +1,23 @@
+# Secrets and local environment files
+.env
+.env.*
+*.secret
+*.secrets
+*.key
+*.pem
+*.pfx
+
+# Azure local files
+.azure/
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python cache, if helper scripts are added later
+__pycache__/
+*.pyc

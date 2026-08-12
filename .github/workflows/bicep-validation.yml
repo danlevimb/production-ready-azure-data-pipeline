@@ -1,0 +1,26 @@
+name: Bicep Validation
+
+on:
+  push:
+    paths:
+      - 'infra/**'
+      - '.github/workflows/bicep-validation.yml'
+  pull_request:
+    paths:
+      - 'infra/**'
+      - '.github/workflows/bicep-validation.yml'
+
+jobs:
+  bicep-build:
+    name: Build Bicep Template
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Bicep template
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az bicep build --file infra/main.bicep
