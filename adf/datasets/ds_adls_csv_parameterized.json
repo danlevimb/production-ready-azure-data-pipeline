@@ -1,0 +1,37 @@
+{
+  "name": "ds_adls_csv_parameterized",
+  "properties": {
+    "linkedServiceName": {
+      "referenceName": "ls_adls_prdp_dev",
+      "type": "LinkedServiceReference"
+    },
+    "parameters": {
+      "p_directory": {
+        "type": "string"
+      },
+      "p_file_name": {
+        "type": "string"
+      }
+    },
+    "type": "DelimitedText",
+    "typeProperties": {
+      "location": {
+        "type": "AzureBlobFSLocation",
+        "fileSystem": "datalake",
+        "folderPath": {
+          "value": "@dataset().p_directory",
+          "type": "Expression"
+        },
+        "fileName": {
+          "value": "@dataset().p_file_name",
+          "type": "Expression"
+        }
+      },
+      "columnDelimiter": ",",
+      "escapeChar": "\\",
+      "firstRowAsHeader": true,
+      "quoteChar": "\""
+    },
+    "schema": []
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "name": "pl_ingest_retail_files_prdp",
+  "properties": {
+    "parameters": {
+      "p_load_date": {
+        "type": "string",
+        "defaultValue": "2026-08-12"
+      },
+      "p_source_system": {
+        "type": "string",
+        "defaultValue": "retail"
+      }
+    },
+    "variables": {
+      "v_entities": {
+        "type": "Array"
+      }
+    },
+    "activities": [
+      {
+        "name": "set_entity_metadata",
+        "type": "SetVariable",
+        "dependsOn": [],
+        "typeProperties": {
+          "variableName": "v_entities",
+          "value": [
+            {
+              "entity_name": "orders",
+              "file_name": "orders_20260812.csv"
+            },
+            {
+              "entity_name": "payments",
+              "file_name": "payments_20260812.csv"
+            },
+            {
+              "entity_name": "order_items",
+              "file_name": "order_items_20260812.csv"
+            }
+          ]
+        }
+      },
+      {
+        "name": "foreach_entity",
+        "type": "ForEach",
+        "dependsOn": [
+          {
+            "activity": "set_entity_metadata",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "typeProperties": {
+          "items": {
+            "value": "@variables('v_entities')",
+            "type": "Expression"
+          },
+          "activities": [
+            {
+              "name": "copy_entity_to_bronze",
+              "type": "Copy",
+              "dependsOn": [],
+              "typeProperties": {
+                "source": {
+                  "type": "DelimitedTextSource",
+                  "storeSettings": {
+                    "type": "AzureBlobFSReadSettings"
+                  },
+                  "formatSettings": {
+                    "type": "DelimitedTextReadSettings"
+                  }
+                },
+                "sink": {
+                  "type": "DelimitedTextSink",
+                  "storeSettings": {
+                    "type": "AzureBlobFSWriteSettings"
+                  },
+                  "formatSettings": {
+                    "type": "DelimitedTextWriteSettings",
+                    "quoteAllText": true
+                  }
+                },
+                "enableStaging": false
+              },
+              "inputs": [
+                {
+                  "referenceName": "ds_adls_csv_parameterized",
+                  "type": "DatasetReference",
+                  "parameters": {
+                    "p_directory": {
+                      "value": "@concat('landing/', pipeline().parameters.p_source_system, '/load_date=', pipeline().parameters.p_load_date)",
+                      "type": "Expression"
+                    },
+                    "p_file_name": {
+                      "value": "@item().file_name",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "referenceName": "ds_adls_csv_parameterized",
+                  "type": "DatasetReference",
+                  "parameters": {
+                    "p_directory": {
+                      "value": "@concat('bronze/', pipeline().parameters.p_source_system, '/entity=', item().entity_name, '/load_date=', pipeline().parameters.p_load_date, '/run_id=', pipeline().RunId)",
+                      "type": "Expression"
+                    },
+                    "p_file_name": {
+                      "value": "@item().file_name",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
