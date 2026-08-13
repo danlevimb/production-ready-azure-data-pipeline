@@ -1,0 +1,6 @@
+order_id,customer_id,order_date,order_status,order_total,source_file_name
+1001,501,2026-08-12,PAID,120.50,orders_20260812.csv
+1002,502,2026-08-12,COMPLETED,89.99,orders_20260812.csv
+1003,503,2026-08-12,PENDING,45.00,orders_20260812.csv
+1004,504,2026-08-12,CANCELLED,0.00,orders_20260812.csv
+1005,505,2026-08-12,REFUNDED,35.75,orders_20260812.csv

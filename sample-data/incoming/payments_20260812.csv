@@ -1,0 +1,5 @@
+payment_id,order_id,payment_date,payment_status,payment_amount,source_file_name
+9001,1001,2026-08-12,APPROVED,120.50,payments_20260812.csv
+9002,1002,2026-08-12,APPROVED,89.99,payments_20260812.csv
+9003,1003,2026-08-12,PENDING,45.00,payments_20260812.csv
+9004,1005,2026-08-12,REFUNDED,35.75,payments_20260812.csv

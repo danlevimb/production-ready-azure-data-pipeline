@@ -1,0 +1,4 @@
+order_id,customer_id,order_date,order_status,order_total,source_file_name
+1006,506,2026-08-12,PAIDD,15.00,orders_invalid_20260812.csv
+1007,507,2026-08-12,COMPLETED,-10.00,orders_invalid_20260812.csv
+,508,2026-08-12,PAID,50.00,orders_invalid_20260812.csv

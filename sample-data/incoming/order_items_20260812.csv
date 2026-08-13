@@ -1,0 +1,7 @@
+order_item_id,order_id,product_id,quantity,unit_price,line_total,source_file_name
+2001,1001,301,2,20.00,40.00,order_items_20260812.csv
+2002,1001,302,1,80.50,80.50,order_items_20260812.csv
+2003,1002,303,1,49.99,49.99,order_items_20260812.csv
+2004,1002,304,2,20.00,40.00,order_items_20260812.csv
+2005,1003,305,1,45.00,45.00,order_items_20260812.csv
+2006,1005,306,1,35.75,35.75,order_items_20260812.csv
