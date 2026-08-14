@@ -1,0 +1,31 @@
+// Phase 7 — 02 Activity runs
+// Purpose: Show activities executed by the MVP pipeline.
+
+AzureDiagnostics
+| where TimeGenerated > ago(24h)
+| where pipelineName_s == "pl_ingest_retail_files_prdp"
+| where Category has "Activity"
+| extend
+    PipelineName = tostring(pipelineName_s),
+    PipelineRunId = tostring(pipelineRunId_g),
+    ActivityName = tostring(activityName_s),
+    ActivityType = tostring(activityType_s),
+    ActivityRunId = tostring(activityRunId_g),
+    Status = coalesce(tostring(status_s), tostring(ResultType)),
+    StartTime = start_t,
+    EndTime = end_t,
+    ErrorMessage = tostring(Error_message_s)
+| project
+    TimeGenerated,
+    PipelineName,
+    PipelineRunId,
+    ActivityName,
+    ActivityType,
+    ActivityRunId,
+    Status,
+    StartTime,
+    EndTime,
+    DurationSeconds = datetime_diff("second", EndTime, StartTime),
+    ErrorMessage,
+    Category
+| order by TimeGenerated desc

@@ -1,0 +1,28 @@
+// Phase 7 — 06 Evidence query
+// Purpose: Compact query for portfolio evidence.
+// Shows pipeline and activity observability in one useful view.
+
+AzureDiagnostics
+| where TimeGenerated > ago(24h)
+| where pipelineName_s == "pl_ingest_retail_files_prdp"
+| extend
+    PipelineRunId = tostring(coalesce(pipelineRunId_g, runId_g)),
+    ActivityName = tostring(activityName_s),
+    ActivityType = tostring(activityType_s),
+    Status = coalesce(tostring(status_s), tostring(ResultType)),
+    StartTime = start_t,
+    EndTime = end_t,
+    FilesWritten = todouble(Output_filesWritten_d),
+    DataWritten = todouble(Output_dataWritten_d)
+| project
+    TimeGenerated,
+    Category,
+    PipelineName = pipelineName_s,
+    PipelineRunId,
+    ActivityName,
+    ActivityType,
+    Status,
+    DurationSeconds = datetime_diff("second", EndTime, StartTime),
+    FilesWritten,
+    DataWritten
+| order by TimeGenerated desc

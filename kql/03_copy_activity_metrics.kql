@@ -1,0 +1,34 @@
+// Phase 7 — 03 Copy activity metrics
+// Purpose: Inspect Copy activity operational metrics.
+
+AzureDiagnostics
+| where TimeGenerated > ago(24h)
+| where pipelineName_s == "pl_ingest_retail_files_prdp"
+| where activityName_s == "copy_entity_to_bronze"
+| extend
+    PipelineRunId = tostring(pipelineRunId_g),
+    ActivityRunId = tostring(activityRunId_g),
+    Status = coalesce(tostring(status_s), tostring(ResultType)),
+    DataRead = todouble(Output_dataRead_d),
+    DataWritten = todouble(Output_dataWritten_d),
+    FilesRead = todouble(Output_filesRead_d),
+    FilesWritten = todouble(Output_filesWritten_d),
+    CopyDuration = todouble(Output_copyDuration_d),
+    Throughput = todouble(Output_throughput_d),
+    DIUs = todouble(Output_usedDataIntegrationUnits_d),
+    ParallelCopies = todouble(Output_usedParallelCopies_d)
+| project
+    TimeGenerated,
+    PipelineRunId,
+    ActivityRunId,
+    ActivityName = activityName_s,
+    Status,
+    DataRead,
+    DataWritten,
+    FilesRead,
+    FilesWritten,
+    CopyDuration,
+    Throughput,
+    DIUs,
+    ParallelCopies
+| order by TimeGenerated desc

@@ -1,0 +1,31 @@
+// Phase 7 — 05 Failure diagnostics
+// Purpose: Find failed pipeline or activity records and show error detail.
+
+AzureDiagnostics
+| where TimeGenerated > ago(24h)
+| where pipelineName_s == "pl_ingest_retail_files_prdp"
+| extend
+    Status = coalesce(tostring(status_s), tostring(ResultType)),
+    PipelineRunId = tostring(coalesce(pipelineRunId_g, runId_g)),
+    ActivityName = tostring(activityName_s),
+    ActivityType = tostring(activityType_s),
+    ErrorCode = tostring(Error_errorCode_s),
+    ErrorMessage = tostring(Error_message_s),
+    FailureType = tostring(Error_failureType_s),
+    ErrorTarget = tostring(Error_target_s)
+| where Status !~ "Succeeded"
+   or isnotempty(ErrorCode)
+   or isnotempty(ErrorMessage)
+| project
+    TimeGenerated,
+    Category,
+    PipelineName = pipelineName_s,
+    PipelineRunId,
+    ActivityName,
+    ActivityType,
+    Status,
+    ErrorCode,
+    ErrorMessage,
+    FailureType,
+    ErrorTarget
+| order by TimeGenerated desc

@@ -1,0 +1,30 @@
+// Phase 7 — 04 Run summary
+// Purpose: Summarize activity status and copy metrics by pipeline run.
+
+AzureDiagnostics
+| where TimeGenerated > ago(24h)
+| where pipelineName_s == "pl_ingest_retail_files_prdp"
+| where Category has "Activity"
+| extend
+    PipelineRunId = tostring(pipelineRunId_g),
+    ActivityName = tostring(activityName_s),
+    Status = coalesce(tostring(status_s), tostring(ResultType)),
+    FilesRead = todouble(Output_filesRead_d),
+    FilesWritten = todouble(Output_filesWritten_d),
+    DataRead = todouble(Output_dataRead_d),
+    DataWritten = todouble(Output_dataWritten_d),
+    CopyDuration = todouble(Output_copyDuration_d)
+| summarize
+    ActivityCount = count(),
+    SucceededActivities = countif(Status =~ "Succeeded"),
+    FailedActivities = countif(Status !~ "Succeeded"),
+    CopyActivityExecutions = countif(ActivityName == "copy_entity_to_bronze"),
+    TotalFilesRead = sum(FilesRead),
+    TotalFilesWritten = sum(FilesWritten),
+    TotalDataRead = sum(DataRead),
+    TotalDataWritten = sum(DataWritten),
+    TotalCopyDuration = sum(CopyDuration),
+    FirstActivityTime = min(TimeGenerated),
+    LastActivityTime = max(TimeGenerated)
+    by PipelineRunId
+| order by LastActivityTime desc

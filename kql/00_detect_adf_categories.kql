@@ -1,0 +1,11 @@
+// Phase 7 — 00 Detect ADF categories in AzureDiagnostics
+// Purpose: Confirm which ADF-related categories are present.
+
+AzureDiagnostics
+| where TimeGenerated > ago(24h)
+| where ResourceProvider =~ "MICROSOFT.DATAFACTORY"
+   or ResourceType has "FACTORIES"
+   or isnotempty(pipelineName_s)
+   or isnotempty(activityName_s)
+| summarize Count = count() by Category, ResourceProvider, ResourceType, Resource
+| order by Count desc
