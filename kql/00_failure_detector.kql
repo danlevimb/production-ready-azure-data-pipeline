@@ -1,0 +1,23 @@
+// Phase 8 — 00 Failure detector
+// Purpose: Detect failed pipeline/activity records for the MVP pipeline.
+
+AzureDiagnostics
+| where TimeGenerated > ago(24h)
+| where ResourceProvider == "MICROSOFT.DATAFACTORY"
+| where Category in ("PipelineRuns", "ActivityRuns")
+| where pipelineName_s == "pl_ingest_retail_files_prdp"
+| extend Status = tostring(status_s)
+| where Status !in ("Succeeded", "InProgress", "Queued", "Started")
+   or isnotempty(Error_message_s)
+   or isnotempty(Error_errorCode_s)
+| project
+    TimeGenerated,
+    Category,
+    PipelineName = pipelineName_s,
+    PipelineRunId = tostring(coalesce(pipelineRunId_g, runId_g)),
+    ActivityName = activityName_s,
+    ActivityType = activityType_s,
+    Status,
+    ErrorCode = Error_errorCode_s,
+    ErrorMessage = Error_message_s
+| order by TimeGenerated desc

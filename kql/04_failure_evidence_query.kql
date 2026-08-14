@@ -1,0 +1,24 @@
+// Phase 8 — 04 Failure evidence query
+// Purpose: Compact failure evidence query for portfolio screenshot.
+
+AzureDiagnostics
+| where TimeGenerated > ago(24h)
+| where ResourceProvider == "MICROSOFT.DATAFACTORY"
+| where pipelineName_s == "pl_ingest_retail_files_prdp"
+| extend
+    PipelineRunId = tostring(coalesce(pipelineRunId_g, runId_g)),
+    Status = tostring(status_s),
+    ActivityName = tostring(activityName_s),
+    ActivityType = tostring(activityType_s),
+    ErrorMessage = tostring(Error_message_s)
+| where Status !in ("Succeeded", "InProgress", "Queued", "Started")
+   or isnotempty(ErrorMessage)
+| project
+    TimeGenerated,
+    Category,
+    PipelineRunId,
+    ActivityName,
+    ActivityType,
+    Status,
+    ErrorMessage
+| order by TimeGenerated desc

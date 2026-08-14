@@ -1,0 +1,14 @@
+// Phase 8 — 03 Alert rule query
+// Purpose: Query designed for Azure Monitor log alert rule.
+// Alert condition: FailedRecords > 0 within the lookback window.
+
+AzureDiagnostics
+| where TimeGenerated > ago(15m)
+| where ResourceProvider == "MICROSOFT.DATAFACTORY"
+| where Category in ("PipelineRuns", "ActivityRuns")
+| where pipelineName_s == "pl_ingest_retail_files_prdp"
+| extend Status = tostring(status_s)
+| where Status !in ("Succeeded", "InProgress", "Queued", "Started")
+   or isnotempty(Error_message_s)
+   or isnotempty(Error_errorCode_s)
+| summarize FailedRecords = count()

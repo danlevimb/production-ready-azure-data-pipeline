@@ -1,0 +1,25 @@
+// Phase 8 — 02 Latest pipeline status
+// Purpose: Review recent status values for the MVP pipeline.
+
+AzureDiagnostics
+| where TimeGenerated > ago(24h)
+| where ResourceProvider == "MICROSOFT.DATAFACTORY"
+| where Category == "PipelineRuns"
+| where pipelineName_s == "pl_ingest_retail_files_prdp"
+| extend
+    PipelineName = tostring(pipelineName_s),
+    RunId = tostring(runId_g),
+    Status = tostring(status_s),
+    LoadDate = tostring(Parameters_p_load_date_s),
+    SourceSystem = tostring(Parameters_p_source_system_s)
+| project
+    TimeGenerated,
+    PipelineName,
+    RunId,
+    Status,
+    StartTime = start_t,
+    EndTime = end_t,
+    DurationSeconds = datetime_diff("second", end_t, start_t),
+    LoadDate,
+    SourceSystem
+| order by TimeGenerated desc

@@ -1,0 +1,34 @@
+// Phase 8 — 01 Failure details
+// Purpose: Show detailed error information for failed activity runs.
+
+AzureDiagnostics
+| where TimeGenerated > ago(24h)
+| where ResourceProvider == "MICROSOFT.DATAFACTORY"
+| where Category == "ActivityRuns"
+| where pipelineName_s == "pl_ingest_retail_files_prdp"
+| extend
+    Status = tostring(status_s),
+    PipelineRunId = tostring(pipelineRunId_g),
+    ActivityName = tostring(activityName_s),
+    ActivityType = tostring(activityType_s),
+    ErrorCode = tostring(Error_errorCode_s),
+    ErrorMessage = tostring(Error_message_s),
+    FailureType = tostring(Error_failureType_s),
+    ErrorTarget = tostring(Error_target_s)
+| where Status !in ("Succeeded", "InProgress", "Queued", "Started")
+   or isnotempty(ErrorCode)
+   or isnotempty(ErrorMessage)
+| project
+    TimeGenerated,
+    PipelineRunId,
+    ActivityName,
+    ActivityType,
+    Status,
+    StartTime = start_t,
+    EndTime = end_t,
+    DurationSeconds = datetime_diff("second", end_t, start_t),
+    ErrorCode,
+    ErrorMessage,
+    FailureType,
+    ErrorTarget
+| order by TimeGenerated desc
