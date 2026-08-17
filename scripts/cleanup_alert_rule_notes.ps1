@@ -1,30 +1,24 @@
-<#
-.SYNOPSIS
-Optional cleanup notes for the Azure Monitor alert rule and action group.
+# Cleanup / Disable Alert Rule Notes
+# This is a notes file, not an automatic cleanup script.
+# Do not run destructive commands until the closeout decision is confirmed.
 
-.DESCRIPTION
-This script is intentionally a notes/helper script.
-Review before running any delete command.
-#>
+# Disable alert rule
+az monitor scheduled-query update `
+  --resource-group "rg-prdp-dev" `
+  --name "alert-prdp-adf-pipeline-failure" `
+  --enabled false
 
-$rg = "rg-prdp-dev"
-$alertRuleName = "alert-prdp-adf-pipeline-failure"
-$actionGroupName = "ag-prdp-dev-alerts"
+# Delete alert rule
+az monitor scheduled-query delete `
+  --resource-group "rg-prdp-dev" `
+  --name "alert-prdp-adf-pipeline-failure"
 
-Write-Host "Review alert rule:" -ForegroundColor Cyan
-az monitor scheduled-query show `
-  --resource-group $rg `
-  --name $alertRuleName `
+# List scheduled query rules
+az monitor scheduled-query list `
+  --resource-group "rg-prdp-dev" `
   --output table
 
-Write-Host ""
-Write-Host "To delete the alert rule after project closeout, run:" -ForegroundColor Yellow
-Write-Host "az monitor scheduled-query delete --resource-group $rg --name $alertRuleName --yes"
-
-Write-Host ""
-Write-Host "To review action groups:" -ForegroundColor Cyan
-Write-Host "az monitor action-group list --resource-group $rg --output table"
-
-Write-Host ""
-Write-Host "To delete the action group after project closeout, run:" -ForegroundColor Yellow
-Write-Host "az monitor action-group delete --resource-group $rg --name $actionGroupName"
+# List action groups
+az monitor action-group list `
+  --resource-group "rg-prdp-dev" `
+  --output table
