@@ -1,93 +1,298 @@
-# Production-Ready Azure Data Pipeline
+<h1 align="center">Production-Ready Azure Data Pipeline</h1>
 
-**Status:** Phase 1 — Architecture and Scope Definition / MVP decisions confirmed  
-**Project type:** Public portfolio project  
-**Orchestrator:** Azure Data Factory  
-**Storage:** Azure Data Lake Storage Gen2  
-**Secrets:** Azure Key Vault  
-**Monitoring:** Azure Monitor / Log Analytics  
-**Deployment:** GitHub Actions + Bicep  
-**Approach:** Hybrid approach — small fresh pipeline with continuity from previous retail/order-processing portfolio themes
+<p align="center">
+  Operational maturity around a small Azure Data Factory ingestion pipeline: secure identity, Infrastructure as Code, observability, controlled failure testing, and alerting.
+</p>
+
+<p align="center">
+  <a href="docs/architecture_and_scope.md">Architecture</a> |
+  <a href="docs/security_strategy.md">Security</a> |
+  <a href="docs/monitoring_and_observability.md">Observability</a> |
+  <a href="docs/evidence_index.md">Evidence</a> |
+  <a href="docs/cost_review_and_cleanup_decision.md">Cost & Cleanup</a>
+</p>
 
 ---
 
-## 1. Project Purpose
+## The problem
 
-This project demonstrates how a small Azure data pipeline can be designed with production-readiness patterns from the beginning.
+A data pipeline is not production-ready simply because it can move data successfully.
 
-The project is not meant to prove large-scale data processing.
+A defensible production-oriented implementation must also answer:
 
-The project is meant to prove operational maturity.
+- How is infrastructure defined and validated?
+- How are credentials and secrets avoided or protected?
+- Can operators trace individual runs?
+- Can failures be detected and diagnosed?
+- Can the platform notify an operator when something goes wrong?
+- Are operational costs and cleanup decisions documented?
 
-Professional question:
+This project focuses on that operational layer.
+
+## The idea
+
+The implementation deliberately uses a small Azure Data Factory ingestion workload so the engineering focus stays on **production-readiness patterns rather than scale**.
+
+The pipeline moves retail CSV files from a landing area into a Bronze zone in ADLS Gen2 while surrounding that flow with:
+
+- Bicep Infrastructure as Code;
+- GitHub Actions validation;
+- Managed Identity;
+- Azure Key Vault;
+- parameterized ADF execution;
+- run-level traceability;
+- Log Analytics and KQL monitoring;
+- controlled failure testing;
+- Azure Monitor alerting;
+- Action Group SMS/email notification.
+
+---
+
+## At a glance
+
+| Area | Implementation |
+|---|---|
+| Cloud platform | Microsoft Azure |
+| Orchestration | Azure Data Factory |
+| Storage | Azure Data Lake Storage Gen2 |
+| Infrastructure as Code | Bicep |
+| CI/CD scope | GitHub Actions validation of Bicep |
+| Identity | System-assigned Managed Identity |
+| Secrets | Azure Key Vault |
+| Monitoring | Azure Monitor + Log Analytics |
+| Diagnostics | KQL over `AzureDiagnostics` |
+| Failure testing | Controlled missing-source scenario |
+| Alerting | Azure Monitor log search alert |
+| Notification | Action Group SMS/email |
+| Data flow | Landing → Bronze |
+| Traceability | ADF `run_id` included in output path |
+| Project status | Completed / portfolio-ready MVP closed |
+
+## What this project demonstrates
+
+- Azure Data Factory orchestration
+- ADLS Gen2 landing and Bronze zones
+- scripted sample-data upload
+- parameterized ADF dataset and pipeline
+- dynamic entity processing with `ForEach`
+- run-ID-based output traceability
+- Managed Identity authentication
+- Azure Key Vault integration
+- secure Azure linked services
+- Bicep Infrastructure as Code baseline
+- GitHub Actions Bicep validation
+- Log Analytics operational monitoring
+- KQL diagnostics
+- controlled failure testing
+- Azure Monitor log-search alerting
+- Action Group notification by SMS/email
+- evidence-backed operational documentation
+- cost-aware closeout decisions
+
+## Architecture
+
+The project separates the **data flow** from the **operational controls** around it.
 
 ```text
-Can I move beyond a working data pipeline and make it secure, observable, deployable, maintainable, and operationally defensible?
+Sample retail CSV files
+        ↓
+Scripted upload
+        ↓
+ADLS Gen2 / landing
+        ↓
+Azure Data Factory
+        ↓
+ADLS Gen2 / bronze / run_id
+        ↓
+AzureDiagnostics
+        ↓
+Log Analytics + KQL
+        ↓
+Azure Monitor alert rule
+        ↓
+Action Group → SMS / email
 ```
 
----
-
-## 2. Confirmed MVP Decisions
-
-| Area | Decision |
-|---|---|
-| Orchestration | Azure Data Factory |
-| Storage | ADLS Gen2 |
-| Storage layout | Single ADLS container named `datalake` |
-| Secret management | Azure Key Vault |
-| Identity | Managed Identity |
-| Monitoring | Azure Monitor / Log Analytics |
-| Monitoring depth | Minimal but defensible Log Analytics |
-| CI/CD | GitHub Actions |
-| CI/CD scope | Bicep validation first |
-| Infrastructure as Code | Bicep |
-| Bicep structure | Simple single-file baseline first; modular structure deferred |
-| Source data | Small retail/order-processing CSV files |
-| Sample upload | Scripted upload |
-| Validation behavior | Bad rows to `rejected/` plus controlled pipeline status |
-| Scope style | Hybrid approach: small new pipeline inspired by previous themes |
-
----
-
-## 3. Initial Repository Structure
+Supporting controls:
 
 ```text
-production-ready-azure-data-pipeline/
+Bicep
+  └─ defines Azure infrastructure baseline
+
+GitHub Actions
+  └─ validates Bicep changes
+
+Managed Identity
+  ├─ authenticates ADF to Azure resources
+  └─ avoids embedded credentials
+
+Azure Key Vault
+  └─ provides secret-management capability where required
+```
+
+See [docs/architecture_and_scope.md](docs/architecture_and_scope.md).
+
+## Key engineering decisions
+
+### 1. Production readiness over data volume
+
+The project intentionally keeps the ingestion workload small.
+
+The goal is not to demonstrate high-volume processing. The goal is to show how a functional pipeline becomes more operationally defensible.
+
+### 2. Managed Identity first
+
+ADF uses Managed Identity so repository code and linked-service configuration do not depend on embedded credentials.
+
+### 3. Bicep as the IaC baseline
+
+Infrastructure is represented with Bicep.
+
+The implemented GitHub Actions scope validates the Bicep definition. **Full automated deployment and multi-environment promotion were intentionally deferred.**
+
+### 4. Run-level traceability
+
+Pipeline output includes the ADF run identifier, making individual executions easier to correlate with operational telemetry.
+
+### 5. Failure behavior is tested, not assumed
+
+A controlled failure was generated by running the pipeline against a load date with no source files.
+
+That failure was then:
+
+1. observed in ADF;
+2. captured in Log Analytics;
+3. inspected with KQL;
+4. detected by an Azure Monitor log alert;
+5. surfaced through Action Group notification.
+
+## Observability and failure diagnostics
+
+ADF diagnostic telemetry is queried through `AzureDiagnostics`.
+
+The included KQL covers:
+
+- recent pipeline runs;
+- activity-level execution;
+- copy metrics;
+- failure detection;
+- detailed error messages;
+- latest pipeline status;
+- alert-rule evaluation;
+- post-alert validation.
+
+Relevant queries are versioned under:
+
+```text
+kql/
+```
+
+The controlled-failure scenario proves that the implementation can do more than show successful executions: it can **detect, diagnose, and alert on failure**.
+
+## Evidence
+
+Public-safe validation evidence is organized under:
+
+```text
+evidence/
+```
+
+The evidence package includes proof for areas such as:
+
+- infrastructure and deployment validation;
+- security and identity;
+- pipeline execution;
+- monitoring;
+- controlled failures;
+- KQL diagnostics;
+- alert-rule behavior;
+- SMS/email notification.
+
+See [docs/evidence_index.md](docs/evidence_index.md).
+
+Evidence is supporting proof; the engineering decisions and implementation remain the project itself.
+
+## Cost and cleanup
+
+Cost awareness is part of the closeout discipline.
+
+Resources reviewed include:
+
+- Azure Data Factory;
+- ADLS Gen2;
+- Azure Key Vault;
+- Log Analytics;
+- Azure Monitor alert rule;
+- Action Group.
+
+The repository documents the decision process for retaining, disabling, or deleting resources after evidence capture.
+
+See [docs/cost_review_and_cleanup_decision.md](docs/cost_review_and_cleanup_decision.md).
+
+## Known MVP limitations
+
+This project intentionally does **not** claim:
+
+- enterprise-scale production deployment;
+- full CI/CD deployment automation;
+- multi-environment promotion;
+- private endpoints or full network isolation;
+- Microsoft Purview governance;
+- Databricks or Synapse transformation layers;
+- complex transformation logic;
+- enterprise incident-management integration.
+
+These are explicit scope boundaries, not hidden gaps.
+
+## Future improvements
+
+Natural next steps would include:
+
+- full deployment automation through GitHub Actions;
+- environment-specific parameterization;
+- modular Bicep;
+- private networking;
+- richer retry / quarantine behavior;
+- broader alert routing and incident-management integration;
+- automated operational tests;
+- stronger deployment promotion controls.
+
+## Repository structure
+
+```text
+.
 ├── README.md
 ├── docs/
-├── diagrams/
 ├── infra/
 ├── scripts/
 ├── sample-data/
-└── evidence/
+├── kql/
+├── evidence/
+└── diagrams/
 ```
 
----
+Key documentation includes:
 
-## 4. Phase 1 Documents
+- [Architecture and scope](docs/architecture_and_scope.md)
+- [Security strategy](docs/security_strategy.md)
+- [Monitoring and observability](docs/monitoring_and_observability.md)
+- [CI/CD strategy](docs/cicd_strategy.md)
+- [Infrastructure as Code strategy](docs/infrastructure_as_code_strategy.md)
+- [Evidence index](docs/evidence_index.md)
+- [Final repository QA checklist](docs/final_repository_qa_checklist.md)
+- [Cost review and cleanup decision](docs/cost_review_and_cleanup_decision.md)
+- [Portfolio positioning](docs/portfolio_positioning.md)
 
-| Document | Purpose |
-|---|---|
-| `docs/architecture_and_scope.md` | Defines project mission, scope, and architecture |
-| `docs/service_selection.md` | Explains why each Azure service is included |
-| `docs/source_data_model.md` | Defines sample retail/order-processing data |
-| `docs/adls_folder_structure.md` | Defines the `datalake` container layout |
-| `docs/security_strategy.md` | Defines Managed Identity, Key Vault, and secret-free repo strategy |
-| `docs/monitoring_and_observability.md` | Defines run correlation, logs, alerts, and operational visibility |
-| `docs/cicd_strategy.md` | Defines GitHub Actions and Bicep validation strategy |
-| `docs/infrastructure_as_code_strategy.md` | Defines Bicep scope and deployment approach |
-| `docs/evidence_checklist.md` | Defines required evidence for the public repo |
-| `docs/cost_controls.md` | Defines cost-control boundaries |
-| `docs/public_repo_structure.md` | Defines expected public repo layout |
-| `docs/implementation_plan.md` | Defines implementation phases |
-| `docs/phase1_closure_review.md` | Defines Phase 1 completion criteria |
+## Why this matters
 
----
+A pipeline that works is only the beginning.
 
-## 5. Current Next Action
+This project demonstrates the next engineering question:
 
-Approve Phase 1 and move into:
+> Can the pipeline be deployed consistently, operated securely, observed clearly, and trusted to fail loudly enough for someone to act?
 
-```text
-Phase 2 — Public Repository Setup
-```
+That is the production-readiness layer this MVP was built to demonstrate.
+
+## Status
+
+**Completed / portfolio-ready MVP closed.**
