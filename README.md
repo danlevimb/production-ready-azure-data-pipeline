@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="diagrams/banner.jpg" width="1000" alt="Production-Ready Azure Data Pipeline banner"/>
+</p>
+
 <h1 align="center">Production-Ready Azure Data Pipeline</h1>
 
 <p align="center">
@@ -91,6 +95,10 @@ The pipeline moves retail CSV files from a landing area into a Bronze zone in AD
 
 ## Architecture
 
+<p align="center">
+  <img src="diagrams/01_production_readiness_architecture.jpg" width="1000" alt="Production-ready Azure data pipeline architecture overview"/>
+</p>
+
 The project separates the **data flow** from the **operational controls** around it.
 
 ```text
@@ -167,6 +175,10 @@ That failure was then:
 5. surfaced through Action Group notification.
 
 ## Observability and failure diagnostics
+
+<p align="center">
+  <img src="diagrams/02_observability_failure_alerting.jpg" width="1000" alt="ADF observability and failure alerting flow"/>
+</p>
 
 ADF diagnostic telemetry is queried through `AzureDiagnostics`.
 
@@ -269,6 +281,9 @@ Natural next steps would include:
 ├── kql/
 ├── evidence/
 └── diagrams/
+    ├── banner.jpg
+    ├── 01_production_readiness_architecture.jpg
+    └── 02_observability_failure_alerting.jpg
 ```
 
 Key documentation includes:
