@@ -4,6 +4,9 @@
 **Phase:** 1 — Architecture and Scope Definition  
 **Status:** MVP decisions confirmed
 
+
+> **Historical design record.** This document captures the original Phase 1 decisions and is intentionally preserved as project history. The implementation subsequently progressed to a completed portfolio-ready MVP. See the [main README](../README.md) for the current project state and demonstrated capabilities.
+
 ---
 
 ## 1. Cost-Control Principles
