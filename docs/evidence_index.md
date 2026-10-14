@@ -7,7 +7,7 @@
 
 ## 1. Purpose
 
-This document indexes the public-safe evidence that is actually versioned in the repository.
+This document indexes the evidence that is actually versioned in the repository.
 
 Evidence supports the project's engineering claims; it does not replace the implementation or technical documentation.
 
@@ -59,23 +59,7 @@ The current public evidence supports claims that the project implemented:
 
 The repository also contains implementation artifacts for Bicep, ADF, Managed Identity / Key Vault strategy, CI validation, scripts, and KQL. Those artifacts should be used as implementation evidence rather than inventing screenshots that were never captured.
 
-## 4. Public-safety rules
-
-Every public artifact should avoid exposing:
-
-- Subscription IDs
-- Tenant IDs
-- Object IDs / Principal IDs
-- personal email addresses
-- unnecessary phone numbers
-- secrets
-- storage account keys
-- SAS tokens
-- connection strings
-- client secrets
-- sensitive portal URLs
-
-## 5. Evidence discipline
+## 4. Evidence discipline
 
 Evidence should:
 

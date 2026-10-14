@@ -1,12 +1,13 @@
 # Pipeline Execution Evidence
 
-Recommended evidence for Phase 6:
+This directory does not currently contain standalone pipeline-execution screenshots.
 
-```text
-04_pipeline_canvas.png
-05_pipeline_debug_success.png
-06_bronze_files_created.png
-07_run_id_traceability.png
-```
+The originally planned screenshot checklist was not committed, so this README does not describe those files as published evidence.
 
-Censor sensitive Azure identifiers before publishing.
+Runtime behavior is demonstrated by the committed monitoring and failure/alerting evidence, while the pipeline implementation itself remains versioned in the repository.
+
+## Published screenshot evidence
+
+| File | What it shows | What it demonstrates |
+|---|---|---|
+| _None currently published in this folder_ | No standalone screenshot artifact is versioned here | The repository keeps the evidence boundary explicit instead of claiming screenshots that were never committed |
